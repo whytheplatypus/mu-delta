@@ -45,9 +45,47 @@ require.config({
 
 require(['CodeMirror', 'keymaster', 'marked', 'CodeMirror-markdown', 'CodeMirror-matchhighlighter', 'CodeMirror-formatting', 'CodeMirror-foldcode'], function(CodeMirror, key, marked){
 
-	var Editor = function(){
+	var Editor = function(data){
 		var self = this;
 		
+		self.file = false;
+
+		function errorHandler(e) {
+		  var msg = "";
+
+		  switch (e.code) {
+		    case FileError.QUOTA_EXCEEDED_ERR:
+		    msg = "QUOTA_EXCEEDED_ERR";
+		    break;
+		    case FileError.NOT_FOUND_ERR:
+		    msg = "NOT_FOUND_ERR";
+		    break;
+		    case FileError.SECURITY_ERR:
+		    msg = "SECURITY_ERR";
+		    break;
+		    case FileError.INVALID_MODIFICATION_ERR:
+		    msg = "INVALID_MODIFICATION_ERR";
+		    break;
+		    case FileError.INVALID_STATE_ERR:
+		    msg = "INVALID_STATE_ERR";
+		    break;
+		    default:
+		    msg = "Unknown Error";
+		    break;
+		  };
+
+		  console.log("Error: " + msg);
+		}
+
+		//if I end up adding jQuery I'll just use toggleClass
+		Element.prototype.toggleClass = function(className){
+			if(this.className.match( /(?:^|\s)className(?!\S)/g)){
+				this.className = this.className.replace( /(?:^|\s)className(?!\S)/g , '' );
+			} else {
+				this.className += " "+className;
+			}
+		}
+
 		var editorDiv = document.getElementById('code');
 
 		//Set up our CodeMirror editor
@@ -55,7 +93,7 @@ require(['CodeMirror', 'keymaster', 'marked', 'CodeMirror-markdown', 'CodeMirror
 		var editor = CodeMirror(editorDiv, {
 			mode: "markdown",
 			lineNumbers: true,
-			value: "##New Markdown Document",
+			value: data || "##New Markdown Document",
 			onCursorActivity: function() {
 				editor.matchHighlight("CodeMirror-matchhighlight");
 				editor.setLineClass(hlLine, null, null);
@@ -82,14 +120,74 @@ require(['CodeMirror', 'keymaster', 'marked', 'CodeMirror-markdown', 'CodeMirror
 			gfm: true,
 			pedantic: false,
 			sanitize: true,
-			// callback for code highlighter
-			/*highlight: function(code, lang) {
-				if (lang === 'js') {
-					return javascriptHighlighter(code);
-				}
-				return code;
-			}*/
 		});
+
+		var openFile = function(){
+			chrome.fileSystem.chooseEntry({ type: 'openWritableFile' }, fileChosen);
+		};
+
+		var fileChosen = function(path){
+			console.log(path);
+			loadFile(path);
+			self.file = path;
+			updatePath();
+		}
+
+		var updatePath = function(){
+			chrome.fileSystem.getDisplayPath(self.file, function(displayPath){
+				document.getElementById('path').innerHTML = displayPath;
+			});
+		}
+
+
+		var writeToFile = function(path){
+			path.createWriter(function(fileWriter) {
+    			fileWriter.onerror = function(e) {
+      				console.log("Write failed: " + e.toString());
+    			};
+
+    			var blob = new Blob([editor.getValue()]);
+    			fileWriter.truncate(blob.size);
+    			fileWriter.onwriteend = function() {
+      				fileWriter.onwriteend = function(e) {
+        				//handleDocumentChange(path.fullPath);
+        				console.log("Write to "+path.fullPath+" completed");
+      				};
+
+      			fileWriter.write(blob);
+    		}
+  		}, errorHandler);
+
+		};
+		var saveFile = function(){
+			if(self.file){
+				writeToFile(self.file);
+			} else {
+				chrome.fileSystem.chooseEntry({ type: 'saveFile' }, function(path){
+					writeToFile(path);
+					self.file = path;
+					updatePath();
+				});
+			}
+		}
+
+		var loadFile = function(path){
+			if (path) {
+				path.file(function(file) {
+		      	var fileReader = new FileReader();
+
+		      	fileReader.onload = function(e) {
+		      	  	editor.setValue(e.target.result);
+		      	};
+
+		      	fileReader.onerror = function(e) {
+		      	  	console.log("Read failed: " + e.toString());
+		      	};
+
+		      	fileReader.readAsText(file);
+		    }, errorHandler);
+		  }
+		};
 
 	    //make key work with textareas
 	    key.filter = function(event){
@@ -97,6 +195,14 @@ require(['CodeMirror', 'keymaster', 'marked', 'CodeMirror-markdown', 'CodeMirror
 	        // ignore keypressed in any elements that support keyboard data input
 	        return true;//!(tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA');
 	    }
+	    key('command+o', function(){openFile();});
+	    key('command+s', function(){saveFile();});
+	    key('command+n', function(){
+	    	event.preventDefault();
+	    	chrome.app.window.create('index.html', {
+				frame: 'chrome', width: 720, height: 400
+			});
+		});
 	    //add key commands
 	    key('command+b', function(){
 	        //var cursor_temp = self.input.getCursor();
@@ -173,11 +279,23 @@ require(['CodeMirror', 'keymaster', 'marked', 'CodeMirror-markdown', 'CodeMirror
 	        editor.setCursor(cursor_temp);
 	    });
 	    
-	    var self = this;
 	    key('command+p', function(event){
 	        event.preventDefault();
+	        //toggleClass(document.getElementById('nav'), 'hide');
 	        self.print();
 	    });
+
+	    document.getElementById("save").addEventListener('click', function(){
+	    	saveFile();
+	    }, false);
+	    document.getElementById("open").addEventListener('click', function(){
+	    	openFile();
+	    }, false);
+	    document.getElementById("new").addEventListener('click', function(){
+	    	chrome.app.window.create('index.html', {
+				frame: 'chrome', width: 720, height: 400
+			});
+	    }, false);
 
 		
 
@@ -225,12 +343,8 @@ require(['CodeMirror', 'keymaster', 'marked', 'CodeMirror-markdown', 'CodeMirror
 		}
 
 	    this.print = function(){
-	        if(!$('#code').hasClass("closed"))
-	            $('#code').addClass("closed");
-	        if(!$('#preview').hasClass("full_screen"))
-	            $('#preview').addClass("full_screen");
-
-	        window.print();
+	    	console.log('printing...');
+	    	window.print();
 	    }
 		
 		this.getScrollerElement = function(){
@@ -252,9 +366,11 @@ require(['CodeMirror', 'keymaster', 'marked', 'CodeMirror-markdown', 'CodeMirror
 		}
 
 		this.onResize();
+		updatePreview();
 	}
 
-	var editor = new Editor();
+	
+	var editor = new Editor(false);
 
 	onresize = editor.onResize;
 
