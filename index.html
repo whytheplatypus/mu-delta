@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>smudge</title>
+        <!-- build:css styles/app.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="lib/CodeMirror/lib/codemirror.css">
+        <!-- endbuild -->
+    </head>
+    <body>
+        <div id="code"></div>
+        <iframe id="preview" src="sandbox.html"></iframe>
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+        </script>
+        <script data-main="smudge.js" src="lib/require.js"></script>
+    </body>
+</html>

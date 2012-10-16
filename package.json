@@ -1,0 +1,10 @@
+{
+  "volo": {
+    "dependencies": {
+      "CodeMirror": "github:marijnh/CodeMirror/v2.34",
+      "keys": "github:whytheplatypus/keys/master",
+      "rainbow": "github:ccampbell/rainbow/1.1.8",
+      "marked": "github:chjj/marked/v0.2.5"
+    }
+  }
+}

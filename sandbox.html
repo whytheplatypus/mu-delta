@@ -1,0 +1,38 @@
+<!--
+  - Copyright (c) 2012 The Chromium Authors. All rights reserved.
+  - Use of this source code is governed by a BSD-style license that can be
+  - found in the LICENSE file.
+  -->
+<!doctype html>
+<html>
+  <head>
+    <script type="text/javascript" src="lib/rainbow/js/rainbow.js"></script>
+    
+    
+  </head>
+  <body>
+    <div id="preview"></div>
+
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript"
+      src="lib/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script>
+      // Set up message event handler:
+      window.addEventListener('message', function(event) {
+        var command = event.data.command;
+        var name = event.data.name || 'hello';
+        switch(command) {
+          case 'render':
+            document.getElementById("preview").innerHTML = event.data.context;
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+            Rainbow.color();
+            break;
+        }
+      });
+    </script>
+  </body>
+</html>
