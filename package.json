@@ -1,0 +1,26 @@
+{
+  "name": "mu-delta",
+  "version": "0.0.1",
+  "description": "markdown and mathjax editor",
+  "main": "grunt.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "grunt-crx": "~0.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": "",
+  "keywords": [
+    "markdown",
+    "mathjax",
+    "packaged",
+    "app",
+    "latex"
+  ],
+  "author": "WhyThePlatypus",
+  "license": "BSD"
+}
