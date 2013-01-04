@@ -1,0 +1,16 @@
+nav{
+	display:none;
+}
+#code{
+	display:none;
+}
+
+footer{
+	display:none;
+}
+html, body{
+	overflow: :auto;
+	height:auto;
+	width:auto;
+	overflow:auto;
+}

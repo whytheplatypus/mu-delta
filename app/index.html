@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>smudge</title>
+        <!-- build:css styles/app.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="lib/CodeMirror/lib/codemirror.css">
+        <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css">
+        <link rel="stylesheet" href="styles/font-awesome.css">
+
+        <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />
+        
+        <!-- endbuild -->
+    </head>
+    <body>
+        <nav id='nav'>
+            <ul>
+                <li><i id='save' class="icon-save" title="save &#8984;+s"></i></li>
+                <li><i id='open' class="icon-folder-open" title="open file &#8984;+o"></i></li>
+                <li><i id='new' class="icon-file" title="create new document &#8984;+n"></i></li>
+            </ul>
+        </nav>
+        <div id="code"></div>   
+        <iframe id="preview" src="sandbox.html"></iframe>
+        <footer>
+            <span id="path"></span>
+        </footer>
+        <script data-main="mu-delta.js" src="lib/require.js"></script>
+    </body>
+</html>

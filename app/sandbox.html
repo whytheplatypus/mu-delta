@@ -1,0 +1,67 @@
+<!--
+  - Copyright (c) 2012 The Chromium Authors. All rights reserved.
+  - Use of this source code is governed by a BSD-style license that can be
+  - found in the LICENSE file.
+  -->
+<!doctype html>
+<html>
+  <head>
+    
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />
+        
+    <link href="lib/rainbow/themes/github.css" rel="stylesheet" type="text/css">
+
+    <script type="text/javascript" src="lib/rainbow/js/rainbow.js"></script>
+    <script src="lib/rainbow/js/language/generic.js"></script>
+    <script src="lib/rainbow/js/language/javascript.js"></script>
+    <script src="lib/rainbow/js/language/python.js"></script>
+    <script src="lib/rainbow/js/language/ruby.js"></script>
+    <script src="lib/rainbow/js/language/php.js"></script>
+    <script src="lib/rainbow/js/language/html.js"></script>
+    <script src="lib/rainbow/js/language/shell.js"></script>
+    <script src="lib/rainbow/js/language/c.js"></script>
+    <script src="lib/rainbow/js/language/css.js"></script>
+    
+  </head>
+  <body>
+    <div id="preview"></div>
+
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript"
+      src="lib/MathJax/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script>
+      // Set up message event handler:
+      window.addEventListener('message', function(event) {
+        var command = event.data.command;
+        var name = event.data.name || 'hello';
+        switch(command) {
+          case 'render':
+            document.getElementById("preview").innerHTML = event.data.context;
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+            Rainbow.color();
+            break;
+          case 'print':
+          //do this with css classes later
+            document.getElementById("preview").style.height = 'auto';
+            document.getElementById("preview").style.width = 'auto';
+            document.getElementById("preview").style.overflow = 'auto';
+            var message = {
+              command: 'print',
+              context: document.getElementById('preview').clientHeight
+            };
+            document.getElementById("preview").style.height = '100%';
+            document.getElementById("preview").style.width = '100%';
+            document.getElementById("preview").style.overflow = 'scroll';
+            event.source.postMessage(message, event.origin);
+            
+            break;
+        }
+      });
+    </script>
+  </body>
+</html>
