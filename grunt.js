@@ -30,7 +30,7 @@ module.exports = function( grunt ) {
       md: {
         "src": "app",
         "dest": "dist",
-        "exclude": [ ".git", ".svn", "lib/CodeMirror/doc", "lib/MathJax/.git", "lib/MathJax/docs", "lib/MathJax/fonts", "lib/MathJax/test"],
+        "exclude": [ ".git", ".svn", "lib/CodeMirror/doc", "lib/MathJax/docs", "lib/MathJax/fonts", "lib/MathJax/test"],
         "privateKey": "app.pem"
       }
     },
